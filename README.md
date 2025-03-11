@@ -1,2 +1,2 @@
-# open-tutor-ai
+# open-tutor-ai docs
 open-tutor-ai Docs 
