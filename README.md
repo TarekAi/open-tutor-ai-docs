@@ -1,2 +1,2 @@
-# open-tutor-ai-ee
-open-tutor-ai entreprise edition
+# open-tutor-ai
+open-tutor-ai Docs 
