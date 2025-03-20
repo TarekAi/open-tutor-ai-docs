@@ -97,7 +97,7 @@ If you encounter memory-related errors during the build, increase the **Node.js 
 - **Hot Reload Not Working**:  
    Verify that **watch mode** is enabled for both frontend and backend.
 
-## Contributing to Open WebUI
+## Contributing to Open TUTORAI
 
 ### Local Workflow
 
