@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkotai_documentation=self.webpackChunkotai_documentation||[]).push([[1903],{1912:o=>{o.exports=JSON.parse('{"blogBasePath":"/open-tutor-ai-docs/blog","blogTitle":"Blog","authorsListPath":"/open-tutor-ai-docs/blog/authors"}')}}]);
