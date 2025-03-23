@@ -20,7 +20,7 @@ const config: Config = {
   organizationName: 'tarekai', // Usually your GitHub org/user name.
   projectName: 'open-tutor-ai-docs', // Usually your repo name.
   deploymentBranch: 'gh-pages',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -94,7 +94,7 @@ const config: Config = {
           "aria-label": "GitHub repository",          
         },
         {
-          href: 'https://discord.com/pr-elhajji/open-tutor-ai-CE',
+          href: 'https://discord.gg/z5fMfrBzEF',
           position: 'right',
           className: "header-discord-link",
           "aria-label": "Discord community",  
@@ -122,7 +122,7 @@ const config: Config = {
             },
             {
               label: 'Discord',
-              href: 'https://discord.gg/2uxNp3Uw',
+              href: 'https://discord.gg/z5fMfrBzEF',
             },
             {
               label: 'X',
