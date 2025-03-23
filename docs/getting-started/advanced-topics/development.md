@@ -3,7 +3,7 @@ sidebar_position: 5
 title: "🛠️ Development Guide"
 ---
 
-Welcome to the **Open WebUI Development Setup Guide!** Whether you're a novice or an experienced developer, this guide will help you set up a **local development environment** for both the frontend and backend components. Let’s dive in! 🚀
+Welcome to the **Open TutorAI Development Setup Guide!** Whether you're a novice or an experienced developer, this guide will help you set up a **local development environment** for both the frontend and backend components. Let’s dive in! 🚀
 
 ## System Requirements
 
@@ -18,8 +18,8 @@ Welcome to the **Open WebUI Development Setup Guide!** Whether you're a novice o
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/open-webui/open-webui.git
-   cd open-webui
+   git clone https://github.com/pr-elhajji/open-tutor-ai-CE.git
+   cd open-tutor-ai-CE
    ```
 
 2. **Frontend Setup**:
@@ -53,8 +53,8 @@ Welcome to the **Open WebUI Development Setup Guide!** Whether you're a novice o
    - Use **Conda** for environment setup:
 
      ```bash
-     conda create --name open-webui python=3.11
-     conda activate open-webui
+     conda create --name open-tutorai python=3.11
+     conda activate open-tutorai
      ```
 
    - Install dependencies:
@@ -96,7 +96,7 @@ If you encounter memory-related errors during the build, increase the **Node.js 
 - **Hot Reload Not Working**:  
    Verify that **watch mode** is enabled for both frontend and backend.
 
-## Contributing to Open WebUI
+## Contributing to Open TutorAI
 
 ### Local Workflow
 

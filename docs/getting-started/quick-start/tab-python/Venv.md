@@ -28,11 +28,11 @@ Create isolated Python environments using `venv`.
 3. **Install Open WebUI:**
 
    ```bash
-   pip install open-webui
+   pip install open-tutorai
    ```
 
 4. **Start the Server:**
 
    ```bash
-   open-webui serve
+   open-tutorai serve
    ```

@@ -5,7 +5,7 @@ title: "🔒HTTPS Encryption"
 
 ## Overview
 
-While HTTPS encryption is **not required** to operate Open WebUI in most cases, certain features—such as **Voice Calls**—will be blocked by modern web browsers unless HTTPS is enabled. If you do not plan to use these features, you can skip this section.
+While HTTPS encryption is **not required** to operate Open TutorAI in most cases, certain features—such as **Voice Calls**—will be blocked by modern web browsers unless HTTPS is enabled. If you do not plan to use these features, you can skip this section.
 
 ## Importance of HTTPS
 

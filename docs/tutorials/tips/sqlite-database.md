@@ -16,7 +16,7 @@ For Open-WebUI, the SQLite database serves as the backbone for user management, 
 
 ## Internal SQLite Location
 
-You can find the SQLite database at `root` -> `data` -> `webui.db`
+You can find the SQLite database at `root` -> `data` -> `tutorai.db`
 
 ```
 📁 Root (/)
@@ -24,9 +24,9 @@ You can find the SQLite database at `root` -> `data` -> `webui.db`
 │   ├── 📁 cache
 │   ├── 📁 uploads
 │   ├── 📁 vector_db
-│   └── 📄 webui.db
+│   └── 📄 tutorai.db
 ├── 📄 dev.sh
-├── 📁 open_webui
+├── 📁 open_tutorai
 ├── 📄 requirements.txt
 ├── 📄 start.sh
 └── 📄 start_windows.bat
@@ -37,13 +37,13 @@ You can find the SQLite database at `root` -> `data` -> `webui.db`
 If you want to copy the Open-WebUI SQLite database running in the container to your local machine, you can use:
 
 ```bash
-docker cp open-webui:/app/backend/data/webui.db ./webui.db
+docker cp open-tutorai:/app/backend/data/tutorai.db ./tutorai.db
 ```
 
 Alternatively, you can access the database within the container using:
 
 ```bash
-docker exec -it open-webui /bin/sh
+docker exec -it open-tutorai /bin/sh
 ```
 
 ## Table Overview

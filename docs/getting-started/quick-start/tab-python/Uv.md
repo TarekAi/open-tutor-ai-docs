@@ -22,10 +22,10 @@ Once `uv` is installed, running Open WebUI is a breeze. Use the command below, e
 
 - **macOS/Linux**:  
   ```bash
-  DATA_DIR=~/.open-webui uvx --python 3.11 open-webui@latest serve
+  DATA_DIR=~/.open-tutorai uvx --python 3.11 open-tutorai@latest serve
   ```
 
 - **Windows**:  
   ```powershell
-  $env:DATA_DIR="C:\open-webui\data"; uvx --python 3.11 open-webui@latest serve
+  $env:DATA_DIR="C:\open-tutorai\data"; uvx --python 3.11 open-tutorai@latest serve
   ```
