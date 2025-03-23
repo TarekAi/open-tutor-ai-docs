@@ -18,7 +18,7 @@ const config: Config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'tarekai', // Usually your GitHub org/user name.
-  projectName: 'open-tutor-ai-docs ', // Usually your repo name.
+  projectName: 'open-tutor-ai-docs', // Usually your repo name.
   deploymentBranch: 'gh-pages',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
