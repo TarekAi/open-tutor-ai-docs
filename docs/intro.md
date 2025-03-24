@@ -11,7 +11,7 @@ sidebar_position: 1
 ![GitHub language count](https://img.shields.io/github/languages/count/pr-elhajji/open-tutor-ai-CE)
 ![GitHub top language](https://img.shields.io/github/languages/top/pr-elhajji/open-tutor-ai-CE)
 ![GitHub last commit](https://img.shields.io/github/last-commit/pr-elhajji/open-tutor-ai-CE)
-[![Discord](https://img.shields.io/badge/Discord-Open_TutorAI-blue?logo=discord&logoColor=white)](https://discord.gg/KJHC5PcT)
+[![Discord](https://img.shields.io/badge/Discord-Open_TutorAI-blue?logo=discord&logoColor=white)](https://discord.gg/z5fMfrBzEF)
 
 
 
@@ -216,7 +216,7 @@ This project is licensed under the [BSD-3-Clause License](LICENSE) - see the [LI
 ## Support 💬
 
 If you have any questions, suggestions, or need assistance, please open an issue or join our
-[Open TutorAI Discord community](https://discord.gg/KJHC5PcT) to connect with us! 🤝
+[Open TutorAI Discord community](https://discord.gg/z5fMfrBzEF) to connect with us! 🤝
 
 ## Star History
 
