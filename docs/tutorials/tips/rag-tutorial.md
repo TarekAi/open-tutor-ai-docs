@@ -1,6 +1,6 @@
 ---
 sidebar_position: 3
-title: "🔎 Open WebUI RAG Tutorial"
+title: "🔎 Open TutorAI RAG Tutorial"
 ---
 
 COMING SOON!
