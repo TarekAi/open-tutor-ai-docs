@@ -1,7 +1,7 @@
 ---
 slug: welcome
 title: Welcome
-authors: [melhajji, yessaady]
+authors: [melhajji]
 tags: [facebook, hello, docusaurus]
 ---
 
