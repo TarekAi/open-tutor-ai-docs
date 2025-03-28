@@ -11,34 +11,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'User-Friendly Interface',
+    title: 'Smart Learning',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        OpenTutorAI is designed with simplicity in mind, 
-        making it easy to set up and get started. 
-        Our intuitive interface ensures a smooth experience from the moment you start using it.
+        AI-driven personalized learning paths that adapt to each student's unique needs and pace
       </>
     ),
   },
   {
-    title: 'Seamless Integration',
+    title: 'Rich Content',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Focus on building amazing learning experiences, and let OpenTutorAI handle the heavy lifting. 
-        Easily integrate with existing platforms, tools, and APIs to enhance the learning process.
+        Access an extensive library of interactive materials, exercises, and real-world examples
       </>
     ),
   },
   {
-    title: 'Customizable & Scalable',
+    title: 'Collaborative',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        OpenTutorAI is built with flexibility in mind. 
-        Customize its features, and extend its capabilities to meet the specific needs of your users, 
-        whether you're supporting a small class or scaling to large institutions.
+        Learn together with peers through real-time collaboration and group learning features
       </>
     ),
   },
