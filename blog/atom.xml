@@ -30,10 +30,6 @@
             <name>Mohamed EL HAJJI</name>
             <uri>https://github.com/pr-elhajji</uri>
         </author>
-        <author>
-            <name>Youssef ES-SAADY</name>
-            <uri>https://github.com/essaady</uri>
-        </author>
         <category label="Facebook" term="Facebook"/>
         <category label="Hello" term="Hello"/>
         <category label="Docusaurus" term="Docusaurus"/>
