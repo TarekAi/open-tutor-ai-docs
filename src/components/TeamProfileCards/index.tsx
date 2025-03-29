@@ -193,7 +193,9 @@ export function StudentFellowsTeamRow(): ReactNode {
         name="Aicha Dakir"
         githubUrl="https://github.com/dak-Aic">
         <Translate id="team.profile.Drew Alexander.body">
-          
+         {
+            ''
+          }
         </Translate>
       </TeamProfileCardCol>
       <TeamProfileCardCol
