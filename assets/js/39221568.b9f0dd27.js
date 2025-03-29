@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkotai_documentation=self.webpackChunkotai_documentation||[]).push([[2875],{8605:t=>{t.exports=JSON.parse('{"metadata":{"permalink":"/open-tutor-ai-docs/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
