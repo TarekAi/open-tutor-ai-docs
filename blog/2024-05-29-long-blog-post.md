@@ -2,7 +2,7 @@
 slug: long-blog-post
 title: Long Blog Post
 authors: yessaady
-tags: [hello, docusaurus]
+tags: [hello, Open TutorAI]
 ---
 
 This is the summary of a very long blog post,

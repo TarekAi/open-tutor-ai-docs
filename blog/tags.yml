@@ -8,10 +8,10 @@ hello:
   permalink: /hello
   description: Hello tag description
 
-docusaurus:
-  label: Docusaurus
-  permalink: /docusaurus
-  description: Docusaurus tag description
+opentutorai:
+  label: Open TutorAI
+  permalink: /opentutorai
+  description: Open TutorAI tag description
 
 hola:
   label: Hola

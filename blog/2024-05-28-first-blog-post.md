@@ -1,8 +1,8 @@
 ---
 slug: first-blog-post
 title: First Blog Post
-authors: [taitbaha, melhajji]
-tags: [hola, docusaurus]
+authors: [melhajji,taitbaha]
+tags: [hola, Open TutorAI]
 ---
 
 Lorem ipsum dolor sit amet...

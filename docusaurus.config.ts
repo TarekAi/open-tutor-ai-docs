@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -30,7 +31,20 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
+  plugins: [
+    [
+      'content-docs',
+      {
+        id: 'community',
+        path: 'community',
+        routeBasePath: 'community',
+        editCurrentVersion: true,
+        sidebarPath: './sidebarsCommunity.js',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+      } satisfies DocsOptions,
+    ],
+  ],
   presets: [
     [
       'classic',
@@ -48,6 +62,7 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
+        
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
@@ -66,12 +81,12 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/opentutor-social-card.jpg',
     navbar: {
       title: 'Open TutorAI',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'My Logo',
+        src: '/img/logo.svg',
       },
       items: [
         {
@@ -81,14 +96,18 @@ const config: Config = {
           label: 'Docs',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
-        {to: '/blog', label: 'Community', position: 'left'},
+        {
+          to: '/community/support', 
+          label: 'Community',
+          sidebarId: 'tutorialSidebar', 
+          position: 'left',
+          },
         {
           type: 'localeDropdown',
           position: 'right',
         },
         {
           href: 'https://github.com/pr-elhajji/open-tutor-ai-CE',
-          
           position: 'right',
           className: "header-github-link",
           "aria-label": "GitHub repository",          
@@ -136,6 +155,10 @@ const config: Config = {
             {
               label: 'Blog',
               to: '/blog',
+            },
+            {
+              label: 'Community',
+              to: '/community',
             },
             {
               label: 'GitHub',
