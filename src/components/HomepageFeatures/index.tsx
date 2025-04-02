@@ -12,7 +12,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Smart Learning',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/smart-learning.svg').default,
     description: (
       <>
         AI-driven personalized learning paths that adapt to each student's unique needs and pace
@@ -21,7 +21,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Rich Content',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    Svg: require('@site/static/img/rich-content.svg').default,
     description: (
       <>
         Access an extensive library of interactive materials, exercises, and real-world examples
@@ -30,7 +30,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Collaborative',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/collaborative.svg').default,
     description: (
       <>
         Learn together with peers through real-time collaboration and group learning features

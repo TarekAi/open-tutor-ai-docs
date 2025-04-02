@@ -101,7 +101,7 @@ export function ActiveTeamRow(): ReactNode {
         githubUrl="https://github.com/essaady"
         xUrl="https://x.com/essaady">
         <Translate id="team.profile.Sida Chen.body">
-          Researcher and Professor specializing in Artificial Intelligence for precision agriculture and education.
+          Researcher and Professor specializing with expertise in artificial intelligence, focusing on its transformative applications in education and precision agriculture.
         </Translate>
       </TeamProfileCardCol>
       <TeamProfileCardCol
