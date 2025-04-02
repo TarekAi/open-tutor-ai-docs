@@ -80,20 +80,29 @@ const config: Config = {
   ],
 
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
+    },
     // Replace with your project's social card
     image: 'img/opentutor-social-card.jpg',
     navbar: {
       title: 'Open TutorAI',
       logo: {
         alt: 'My Logo',
+        width: 32,
+        height: 32,
         src: '/img/logo.svg',
       },
+      hideOnScroll:true,
+      
       items: [
         {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Docs',
+          label: 'Documentation',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
@@ -121,24 +130,42 @@ const config: Config = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
+      logo: {
+        alt: 'My Logo',
+        width: 100,
+        height: 100,
+        src: '/img/logo.svg',
+      },
       links: [
         {
-          title: 'Docs',
+          title: 'Documentation',
           items: [
             {
               label: 'Tutorial',
               to: '/docs/intro',
+            },
+            {
+              label: 'Getting Started',
+              to: '/docs/getting-started/',
+            },
+            {
+              label: 'Teachers',
+              to: '/docs/features/teacher-features/',
+            },
+            {
+              label: 'Students',
+              to: '/docs/features/student-features/',
+            },
+            {
+              label: 'Parents',
+              to: '/docs/features/parent-features/',
             },
           ],
         },
         {
           title: 'Community',
           items: [
-            {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/#',
-            },
             {
               label: 'Discord',
               href: 'https://discord.gg/z5fMfrBzEF',
@@ -158,7 +185,7 @@ const config: Config = {
             },
             {
               label: 'Community',
-              to: '/community',
+              to: '/community/support',
             },
             {
               label: 'GitHub',

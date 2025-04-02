@@ -42,6 +42,7 @@ function TeamProfileCard({
           <div className="avatar avatar--vertical">
             <img
               className="avatar__photo avatar__photo--xl"
+              style={{ marginBottom: '15px' }}
               src={`${githubUrl}.png`}
               alt={`${name}'s avatar`}
             />
@@ -84,7 +85,7 @@ export function ActiveTeamRow(): ReactNode {
       <TeamProfileCardCol
         name="Mohamed EL HAJJI"
         githubUrl="https://github.com/pr-elhajji"
-        xUrl="https://x.com/pr_elhajji">
+        >
         <Translate
           id="team.profile.Sebastien Lorber.body"
           values={{
@@ -99,7 +100,7 @@ export function ActiveTeamRow(): ReactNode {
       <TeamProfileCardCol
         name="Youssef ES-SAADY"
         githubUrl="https://github.com/essaady"
-        xUrl="https://x.com/essaady">
+        >
         <Translate id="team.profile.Sida Chen.body">
           Researcher and Professor specializing with expertise in artificial intelligence, focusing on its transformative applications in education and precision agriculture.
         </Translate>
@@ -172,7 +173,7 @@ export function StudentFellowsTeamRow(): ReactNode {
       <TeamProfileCardCol
         name="Reda EL BETTIOUI"
         githubUrl="https://github.com/XredaX"
-        xUrl="https://x.com/XredaX">
+        >
         <Translate
           id="team.profile.Anshul Goyal.body"
           values={{
@@ -201,7 +202,7 @@ export function StudentFellowsTeamRow(): ReactNode {
       <TeamProfileCardCol
         name="Abdallah OUGOUMAD"
         githubUrl="https://github.com/03ABDALLAH"
-        xUrl="https://x.com/03ABDALLAH">
+        >
         <Translate
           id="team.profile.Fanny Vieira.body"
           values={{
@@ -228,7 +229,7 @@ export function StudentFellowsTeamRow(): ReactNode {
       <TeamProfileCardCol
         name="Abdellatif LAGHJAJ"
         githubUrl="https://github.com/abdellatif-laghjaj"
-        xUrl="https://x.com/Sabdellatif-laghjaj">
+        >
         <Translate
           id="team.profile.Sam Zhou.body"
           values={{
