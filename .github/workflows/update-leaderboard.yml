@@ -27,8 +27,8 @@ jobs:
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
-          echo "| Contributor | Commits | Pull Requests | Issues | Reviews |" >> leaderboard.md
-          echo "|-------------|---------|----------------|--------|---------|" >> leaderboard.md
+          echo "| Contributor | Commits | Pull Requests | Issues | Reviews | Badge |" >> leaderboard.md
+          echo "|-------------|---------|----------------|--------|---------|-------|" >> leaderboard.md
           
           # Fetch commits for the past week
           contributors=$(curl -s \
@@ -41,10 +41,23 @@ jobs:
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
             while read contributor commits; do
-              echo "| @$contributor | $commits | 0 | 0 | 0 |" >> leaderboard.md
+              # Assign badges based on contribution
+              badge="No Badge"
+              
+              # Assign badges based on rules (you can adjust these conditions)
+              if [ "$commits" -gt 10 ]; then
+                badge="Top Contributor"
+              elif [ "$commits" -gt 5 ]; then
+                badge="Rising Star"
+              elif [ "$commits" -gt 2 ]; then
+                badge="Consistent Contributor"
+              fi
+              
+              # Write contributor and badge info to leaderboard
+              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
             done
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
           git config --global user.email "action@github.com"
-          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update" && git push)
+          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update with badges" && git push)
