@@ -17,138 +17,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the current date range for the past week
+          # Get a list of contributors and their commits
+          echo "Fetching contributor stats..."
+          
+          # Set date range for the past week (change if necessary)
           since_date=$(date -d 'last Monday' --utc +%Y-%m-%dT%H:%M:%SZ)
           until_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
-
+          
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
-          echo "| Contributor | Commits | PRs Created | Issues Created | Reviews | Badge |" >> leaderboard.md
-          echo "|-------------|---------|-------------|----------------|---------|-------|" >> leaderboard.md
-
+          echo "| Contributor | Commits | Pull Requests | Issues | Reviews | Badge |" >> leaderboard.md
+          echo "|-------------|---------|----------------|--------|---------|-------|" >> leaderboard.md
+          
           # Fetch commits for the past week
-          contributors_commits=$(curl -s \
+          contributors=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
-          
-          # Debug: Print out the commits response
-          echo "Commits Response: $contributors_commits"
 
-          # Fetch pull requests created
-          contributors_prs=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date")
-          
-          # Debug: Print out the PR response
-          echo "PRs Response: $contributors_prs"
-
-          # Fetch issues created
-          contributors_issues=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
-          
-          # Debug: Print out the issues response
-          echo "Issues Response: $contributors_issues"
-
-          # Fetch pull request reviews
-          contributors_reviews=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/reviews?since=$since_date&until=$until_date")
-
-          # Debug: Print out the reviews response
-          echo "Reviews Response: $contributors_reviews"
-
-          # Initialize data structure to store contributions
-          declare -A commits_data
-          declare -A prs_data
-          declare -A issues_data
-          declare -A reviews_data
-
-          # Check if commits data is not empty
-          if [ "$(echo "$contributors_commits" | jq length)" -gt 0 ]; then
-            # Parse commits data
-            echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
-              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-              while read contributor commits; do
-                commits_data["$contributor"]=$commits
-              done
-          else
-            echo "No commits found for this period."
-          fi
-
-          # Check if PRs data is not empty
-          if [ "$(echo "$contributors_prs" | jq length)" -gt 0 ]; then
-            # Parse PRs created data
-            echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
-              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-              while read contributor prs; do
-                prs_data["$contributor"]=$prs
-              done
-          else
-            echo "No PRs found for this period."
-          fi
-
-          # Check if issues data is not empty
-          if [ "$(echo "$contributors_issues" | jq length)" -gt 0 ]; then
-            # Parse issues created data
-            echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
-              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-              while read contributor issues; do
-                issues_data["$contributor"]=$issues
-              done
-          else
-            echo "No issues found for this period."
-          fi
-
-          # Check if reviews data is not empty
-          if [ "$(echo "$contributors_reviews" | jq length)" -gt 0 ]; then
-            # Parse reviews data
-            echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
-              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-              while read contributor reviews; do
-                reviews_data["$contributor"]=$reviews
-              done
-          else
-            echo "No reviews found for this period."
-          fi
-
-          # Debug: Check if contributors were found
-          echo "Commits Data: ${!commits_data[@]}"
-          echo "PRs Data: ${!prs_data[@]}"
-          echo "Issues Data: ${!issues_data[@]}"
-          echo "Reviews Data: ${!reviews_data[@]}"
-
-          # Generate leaderboard with badges
-          for contributor in "${!commits_data[@]}"; do
-            commits=${commits_data["$contributor"]}
-            prs=${prs_data["$contributor"]}
-            issues=${issues_data["$contributor"]}
-            reviews=${reviews_data["$contributor"]}
-            
-            # Assign badges based on contributions
-            badge="No Badge"
-            
-            # Badge conditions (updated for smaller contributions)
-            if [ "$commits" -gt 4 ]; then
-              badge="Top Contributor"
-            elif [ "$prs" -gt 1 ]; then
-              badge="Top PR Creator"
-            elif [ "$reviews" -gt 1 ]; then
-              badge="Top Reviewer"
-            elif [ "$issues" -gt 1 ]; then
-              badge="Top Issue Creator"
-            elif [ "$commits" -gt 2 ] && [ "$prs" -gt 1 ]; then
-              badge="Rising Star"
-            fi
-            
-            # Write contributor and badge info to leaderboard
-            echo "| @$contributor | $commits | $prs | $issues | $reviews | $badge |" >> leaderboard.md
-          done
+          # Extract commit data
+          echo "$contributors" | jq -r '.[] | "\(.author.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            sort -k2 -nr | \
+            while read contributor commits; do
+              # Assign badges based on contribution
+              badge="No Badge"
+              
+              # Assign badges based on rules (you can adjust these conditions)
+              if [ "$commits" -gt 10 ]; then
+                badge="Top Contributor"
+              elif [ "$commits" -gt 5 ]; then
+                badge="Rising Star"
+              elif [ "$commits" -gt 2 ]; then
+                badge="Consistent Contributor"
+              fi
+              
+              # Write contributor and badge info to leaderboard
+              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
+            done
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
