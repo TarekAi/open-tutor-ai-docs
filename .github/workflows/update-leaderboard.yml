@@ -2,7 +2,7 @@ name: Weekly Contributor Leaderboard
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Every Monday at midnight UTC
+    - cron: '0 0 * * 1'  # Runs every Monday at midnight UTC
   workflow_dispatch:  # Also allows manual triggering from GitHub UI
 
 jobs:
@@ -14,16 +14,14 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Generate Contribution Stats
-        uses: jpastorm/gh-contribution-stats@v1.1.0
+        uses: github-actions/stats@v1  # Use a reliable stats action
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           output_file: leaderboard.md
-          since: 'last-week'  # You can also use '30 days' or 'last-month'
+          since: 'last-week'  # You can adjust the time period to 'last-month' if needed
 
       - name: Commit and push leaderboard
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "action@github.com"
-          git add leaderboard.md
-          git commit -m "🔁 Weekly leaderboard update"
-          git push
+          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update" && git push)
