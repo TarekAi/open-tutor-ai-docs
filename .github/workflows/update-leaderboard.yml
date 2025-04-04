@@ -2,8 +2,8 @@ name: Weekly Contributor Leaderboard
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Runs every Monday at midnight UTC
-  workflow_dispatch:  # Also allows manual triggering from GitHub UI
+    - cron: '0 0 * * 1'  # Every Monday at midnight UTC
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update-leaderboard:
@@ -13,15 +13,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Generate Contribution Stats
-        uses: github-actions/stats@v1  # Use a reliable stats action
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          output_file: leaderboard.md
-          since: 'last-week'  # You can adjust the time period to 'last-month' if needed
-
-      - name: Commit and push leaderboard
+      - name: Fetch contributor stats and update leaderboard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Get a list of contributors and their commits
+          echo "Fetching contributor stats..."
+          
+          # Set date range for the past week (change if necessary)
+          since_date=$(date -d 'last Monday' --utc +%Y-%m-%dT%H:%M:%SZ)
+          until_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
+          
+          # Initialize leaderboard markdown file
+          echo "# Weekly Contributor Leaderboard" > leaderboard.md
+          echo "" >> leaderboard.md
+          echo "| Contributor | Commits | Pull Requests | Issues | Reviews |" >> leaderboard.md
+          echo "|-------------|---------|----------------|--------|---------|" >> leaderboard.md
+          
+          # Fetch commits for the past week
+          contributors=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
+
+          # Extract commit data
+          echo "$contributors" | jq -r '.[] | "\(.author.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            sort -k2 -nr | \
+            while read contributor commits; do
+              echo "| @$contributor | $commits | 0 | 0 | 0 |" >> leaderboard.md
+            done
+
+          # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
           git config --global user.email "action@github.com"
           git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update" && git push)
