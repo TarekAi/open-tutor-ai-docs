@@ -20,8 +20,8 @@ jobs:
           # Get a list of contributors and their commits
           echo "Fetching contributor stats..."
           
-          # Set date range for the past week (change if necessary)
-          since_date=$(date -d 'last Monday' --utc +%Y-%m-%dT%H:%M:%SZ)
+          # Set date range for the past month instead of week to ensure we catch more activity
+          since_date=$(date -d '30 days ago' --utc +%Y-%m-%dT%H:%M:%SZ)
           until_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
           
           echo "Fetching data from $since_date to $until_date"
@@ -30,6 +30,7 @@ jobs:
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
           echo "Last updated: $(date --utc)" >> leaderboard.md
+          echo "Period: Last 30 days" >> leaderboard.md
           echo "" >> leaderboard.md
           echo "| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |" >> leaderboard.md
           echo "|-------------|---------|---------|---------------|---------|-------|" >> leaderboard.md
@@ -37,12 +38,15 @@ jobs:
           # Create a temporary file to store contributor data
           declare -A contributor_data
 
-          # Fetch commits for the past week
+          # Fetch commits
           echo "Fetching commits..."
           contributors_commits=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date&per_page=100")
+
+          echo "Raw commits response:"
+          echo "$contributors_commits" | jq '.'
 
           # Check if the response is valid JSON and not empty
           if jq -e . >/dev/null 2>&1 <<<"$contributors_commits"; then
@@ -57,12 +61,15 @@ jobs:
             echo "No valid commits data received"
           fi
 
-          # Fetch issues created for the past week
+          # Fetch issues
           echo "Fetching issues..."
           contributors_issues=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date&per_page=100")
+
+          echo "Raw issues response:"
+          echo "$contributors_issues" | jq '.'
 
           # Check if the response is valid JSON and not empty
           if jq -e . >/dev/null 2>&1 <<<"$contributors_issues"; then
@@ -77,12 +84,15 @@ jobs:
             echo "No valid issues data received"
           fi
 
-          # Fetch PRs created for the past week
+          # Fetch PRs
           echo "Fetching pull requests..."
           contributors_prs=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date&per_page=100")
+
+          echo "Raw PRs response:"
+          echo "$contributors_prs" | jq '.'
 
           # Check if the response is valid JSON and not empty
           if jq -e . >/dev/null 2>&1 <<<"$contributors_prs"; then
@@ -150,12 +160,12 @@ jobs:
           # If no contributors were found, add a note
           if [ ${#processed_contributors[@]} -eq 0 ]; then
             echo "No contributors found for this period"
-            echo "| No contributors found for this period | - | - | - | - | - |" >> leaderboard.md
+            echo "| No activity found in the last 30 days | - | - | - | - | - |" >> leaderboard.md
           fi
 
           # Sort the leaderboard by total contributions (excluding header)
           echo "Sorting leaderboard..."
-          (head -n 6 leaderboard.md && tail -n +7 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
+          (head -n 7 leaderboard.md && tail -n +8 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
           mv leaderboard.tmp leaderboard.md
 
           # Add footer
@@ -174,4 +184,4 @@ jobs:
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
           git config --global user.email "action@github.com"
-          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update with badges" && git push)
+          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Monthly leaderboard update with badges" && git push)
