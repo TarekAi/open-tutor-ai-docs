@@ -28,13 +28,23 @@ jobs:
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
           echo "| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |" >> leaderboard.md
-          echo "|-------------|---------|----------------|----------------|---------|-------|" >> leaderboard.md
+          echo "|-------------|---------|---------|---------------|---------|-------|" >> leaderboard.md
           
+          # Create a temporary file to store contributor data
+          declare -A contributor_data
+
           # Fetch commits for the past week
           contributors_commits=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
+
+          # Process commits
+          echo "$contributors_commits" | jq -r '.[] | .author.login' | sort | uniq -c | while read count login; do
+            if [ ! -z "$login" ]; then
+              contributor_data["$login,commits"]=$count
+            fi
+          done
 
           # Fetch issues created for the past week
           contributors_issues=$(curl -s \
@@ -42,80 +52,72 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
 
+          # Process issues (excluding PRs)
+          echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null) | .user.login' | sort | uniq -c | while read count login; do
+            if [ ! -z "$login" ]; then
+              contributor_data["$login,issues"]=$count
+            fi
+          done
+
           # Fetch PRs created for the past week
           contributors_prs=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date")
 
-          # Extract commit data
-          echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
-            while read contributor commits; do
-              # Initialize badge
-              badge="No Badge"
-              
-              # Assign badges based on commit contributions
-              if [ "$commits" -gt 10 ]; then
-                badge="Top Contributor"
-              elif [ "$commits" -gt 5 ]; then
-                badge="Rising Star"
-              elif [ "$commits" -gt 2 ]; then
-                badge="Consistent Contributor"
-              fi
-              
-              # Write contributor and badge info to leaderboard
-              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
-            done
+          # Process PRs
+          echo "$contributors_prs" | jq -r '.[] | .user.login' | sort | uniq -c | while read count login; do
+            if [ ! -z "$login" ]; then
+              contributor_data["$login,prs"]=$count
+            fi
+          done
 
-          # Extract issues data
-          echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
-            while read contributor issues; do
-              # Initialize badge for issues
-              badge="No Badge"
-              
-              # Assign badges based on issues created
-              if [ "$issues" -gt 5 ]; then
-                badge="Issue Master"
-              elif [ "$issues" -gt 2 ]; then
-                badge="Active Issue Creator"
-              fi
-              
-              # Update leaderboard with issues data
-              # We need to check if the contributor already exists from commits
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 | 0 |/$issues | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | $issues | 0 | 0 | $badge |" >> leaderboard.md
-              fi
-            done
+          # Function to determine badge
+          get_badge() {
+            local commits=$1
+            local issues=$2
+            local prs=$3
+            
+            if [ "$commits" -gt 10 ]; then
+              echo "Top Contributor"
+            elif [ "$commits" -gt 5 ]; then
+              echo "Rising Star"
+            elif [ "$commits" -gt 2 ]; then
+              echo "Consistent Contributor"
+            elif [ "$issues" -gt 5 ]; then
+              echo "Issue Master"
+            elif [ "$issues" -gt 2 ]; then
+              echo "Active Issue Creator"
+            elif [ "$prs" -gt 5 ]; then
+              echo "PR Master"
+            elif [ "$prs" -gt 2 ]; then
+              echo "Active PR Contributor"
+            else
+              echo "No Badge"
+            fi
+          }
 
-          # Extract PR data
-          echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
-            while read contributor prs; do
-              # Initialize badge for PRs
-              badge="No Badge"
-              
-              # Assign badges based on PR contributions
-              if [ "$prs" -gt 5 ]; then
-                badge="PR Master"
-              elif [ "$prs" -gt 2 ]; then
-                badge="Active PR Contributor"
-              fi
-              
-              # Update leaderboard with PR data
-              # We need to check if the contributor already exists from commits or issues
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 |/$prs | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | 0 | $prs | 0 | $badge |" >> leaderboard.md
-              fi
-            done
+          # Combine all unique contributors and write to leaderboard
+          for key in "${!contributor_data[@]}"; do
+            login=${key%,*}
+            type=${key#*,}
+            
+            commits=${contributor_data["$login,commits"]:-0}
+            issues=${contributor_data["$login,issues"]:-0}
+            prs=${contributor_data["$login,prs"]:-0}
+            reviews=0  # placeholder for future implementation
+            
+            badge=$(get_badge "$commits" "$issues" "$prs")
+            
+            # Only add each contributor once
+            if ! grep -q "| @$login |" leaderboard.md; then
+              echo "| @$login | $commits | $issues | $prs | $reviews | $badge |" >> leaderboard.md
+            fi
+          done
+
+          # Sort the leaderboard by total contributions (excluding header)
+          (head -n 4 leaderboard.md && tail -n +5 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
+          mv leaderboard.tmp leaderboard.md
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
