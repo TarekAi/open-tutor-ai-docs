@@ -27,7 +27,7 @@ jobs:
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
-          echo "| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |" >> leaderboard.md
+          echo "| Contributor | Commits | Pull Requests | Issues | Reviews | Badge |" >> leaderboard.md
           echo "|-------------|---------|----------------|--------|---------|-------|" >> leaderboard.md
           
           # Fetch commits for the past week
