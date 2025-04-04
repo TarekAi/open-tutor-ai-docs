@@ -29,8 +29,8 @@ jobs:
           echo "Last updated: $(date --utc)" >> leaderboard.md
           echo "Period: Past week" >> leaderboard.md
           echo "" >> leaderboard.md
-          echo "| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |" >> leaderboard.md
-          echo "|-------------|---------|---------|---------------|---------|-------|" >> leaderboard.md
+          echo "| Contributor | Commits | Issues | Pull Requests | Discussions | Reviews | Badge |" >> leaderboard.md
+          echo "|-------------|---------|---------|---------------|-------------|---------|-------|" >> leaderboard.md
           
           # Function to fetch all pages
           fetch_all_pages() {
@@ -62,91 +62,120 @@ jobs:
             echo "$result"
           }
 
+          # Function to get user avatar URL
+          get_avatar_url() {
+            local username=$1
+            local user_data=$(curl -s \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/users/$username")
+            
+            echo $(echo "$user_data" | jq -r '.avatar_url')
+          }
+
           # Fetch all data
           contributors_commits=$(fetch_all_pages "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
           contributors_issues=$(fetch_all_pages "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date")
           contributors_prs=$(fetch_all_pages "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date")
+          contributors_discussions=$(fetch_all_pages "https://api.github.com/repos/${{ github.repository }}/discussions?since=$since_date")
+
+          declare -A contributor_stats
+          declare -A contributor_avatars
 
           # Process commits
           echo "$contributors_commits" | jq -r '.[] | select(.author != null and .author.login != "github-actions[bot]" and .author.login != "actions-user") | "\(.author.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
             while read contributor commits; do
-              # Get badge based on commits
-              if [ "$commits" -gt 10 ]; then
-                badge="🏆 Top Contributor"
-              elif [ "$commits" -gt 5 ]; then
-                badge="⭐ Rising Star"
-              elif [ "$commits" -gt 2 ]; then
-                badge="💪 Consistent Contributor"
-              else
-                badge="🌱 New Contributor"
+              contributor_stats["$contributor,commits"]=$commits
+              if [ -z "${contributor_avatars[$contributor]}" ]; then
+                contributor_avatars["$contributor"]=$(get_avatar_url "$contributor")
               fi
-              
-              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
             done
 
           # Process issues
           echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null and .user != null and .user.login != "github-actions[bot]" and .user.login != "actions-user") | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
             while read contributor issues; do
-              if [ "$issues" -gt 5 ]; then
-                badge="🎯 Issue Master"
-              elif [ "$issues" -gt 2 ]; then
-                badge="📝 Active Issue Creator"
-              else
-                badge="🌱 New Contributor"
-              fi
-              
-              # Update existing entry or add new one
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/| 0 | 0 | 0 |/| $issues | 0 | 0 |/" leaderboard.md
-                # Update badge if it's more prestigious
-                if [ "$issues" -gt 5 ]; then
-                  sed -i "/| @$contributor |/s/| [^|]*|$/ | $badge |/" leaderboard.md
-                fi
-              else
-                echo "| @$contributor | 0 | $issues | 0 | 0 | $badge |" >> leaderboard.md
+              contributor_stats["$contributor,issues"]=$issues
+              if [ -z "${contributor_avatars[$contributor]}" ]; then
+                contributor_avatars["$contributor"]=$(get_avatar_url "$contributor")
               fi
             done
 
           # Process pull requests
           echo "$contributors_prs" | jq -r '.[] | select(.user != null and .user.login != "github-actions[bot]" and .user.login != "actions-user") | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
             while read contributor prs; do
-              if [ "$prs" -gt 5 ]; then
-                badge="🚀 PR Master"
-              elif [ "$prs" -gt 2 ]; then
-                badge="📦 Active PR Creator"
-              else
-                badge="🌱 New Contributor"
-              fi
-              
-              # Update existing entry or add new one
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/| 0 | 0 |/| $prs | 0 |/" leaderboard.md
-                # Update badge if it's more prestigious
-                if [ "$prs" -gt 5 ]; then
-                  sed -i "/| @$contributor |/s/| [^|]*|$/ | $badge |/" leaderboard.md
-                fi
-              else
-                echo "| @$contributor | 0 | 0 | $prs | 0 | $badge |" >> leaderboard.md
+              contributor_stats["$contributor,prs"]=$prs
+              if [ -z "${contributor_avatars[$contributor]}" ]; then
+                contributor_avatars["$contributor"]=$(get_avatar_url "$contributor")
               fi
             done
+
+          # Process discussions
+          echo "$contributors_discussions" | jq -r '.[] | select(.author != null and .author.login != "github-actions[bot]" and .author.login != "actions-user") | "\(.author.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            while read contributor discussions; do
+              contributor_stats["$contributor,discussions"]=$discussions
+              if [ -z "${contributor_avatars[$contributor]}" ]; then
+                contributor_avatars["$contributor"]=$(get_avatar_url "$contributor")
+              fi
+            done
+
+          # Function to get badge
+          get_badge() {
+            local commits=$1
+            local issues=$2
+            local prs=$3
+            local discussions=$4
+            local total=$((commits + issues + prs + discussions))
+            
+            if [ "$commits" -gt 10 ]; then
+              echo "🏆 Top Contributor"
+            elif [ "$total" -gt 10 ]; then
+              echo "⭐ Rising Star"
+            elif [ "$commits" -gt 5 ]; then
+              echo "💪 Consistent Contributor"
+            elif [ "$issues" -gt 5 ]; then
+              echo "🎯 Issue Master"
+            elif [ "$prs" -gt 5 ]; then
+              echo "🚀 PR Master"
+            elif [ "$discussions" -gt 5 ]; then
+              echo "💬 Discussion Leader"
+            elif [ "$total" -gt 5 ]; then
+              echo "🔄 Active Contributor"
+            else
+              echo "🌱 New Contributor"
+            fi
+          }
+
+          # Write the leaderboard entries
+          for contributor in "${!contributor_avatars[@]}"; do
+            commits=${contributor_stats["$contributor,commits"]:-0}
+            issues=${contributor_stats["$contributor,issues"]:-0}
+            prs=${contributor_stats["$contributor,prs"]:-0}
+            discussions=${contributor_stats["$contributor,discussions"]:-0}
+            avatar_url=${contributor_avatars["$contributor"]}
+            badge=$(get_badge "$commits" "$issues" "$prs" "$discussions")
+            
+            echo "| <img src=\"$avatar_url\" width=\"30\" style=\"border-radius: 50%\"> [@$contributor](https://github.com/$contributor) | $commits | $issues | $prs | $discussions | 0 | $badge |" >> leaderboard.md
+          done
+
+          # Sort the leaderboard by total contributions (excluding header)
+          (head -n 7 leaderboard.md && tail -n +8 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
+          mv leaderboard.tmp leaderboard.md
 
           # Add badge explanation
           echo "" >> leaderboard.md
           echo "## Badge Levels" >> leaderboard.md
           echo "" >> leaderboard.md
           echo "- 🏆 **Top Contributor**: More than 10 commits" >> leaderboard.md
-          echo "- ⭐ **Rising Star**: More than 5 commits" >> leaderboard.md
-          echo "- 💪 **Consistent Contributor**: More than 2 commits" >> leaderboard.md
+          echo "- ⭐ **Rising Star**: More than 10 total contributions" >> leaderboard.md
+          echo "- 💪 **Consistent Contributor**: More than 5 commits" >> leaderboard.md
           echo "- 🎯 **Issue Master**: More than 5 issues" >> leaderboard.md
-          echo "- 📝 **Active Issue Creator**: More than 2 issues" >> leaderboard.md
           echo "- 🚀 **PR Master**: More than 5 PRs" >> leaderboard.md
-          echo "- 📦 **Active PR Creator**: More than 2 PRs" >> leaderboard.md
+          echo "- 💬 **Discussion Leader**: More than 5 discussions" >> leaderboard.md
+          echo "- 🔄 **Active Contributor**: More than 5 total contributions" >> leaderboard.md
           echo "- 🌱 **New Contributor**: First contribution" >> leaderboard.md
 
           # Commit and push changes if there are updates
