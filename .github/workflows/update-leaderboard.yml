@@ -36,24 +36,11 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
 
-          
-          # Fetch pull requests merged for the past week
-          contributors_prs=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed&since=$since_date&until=$until_date")
-
           # Fetch issues created for the past week
           contributors_issues=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
-
-          # Fetch reviews given for the past week
-          contributors_reviews=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/reviews?since=$since_date&until=$until_date")
 
           # Extract commit data
           echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
@@ -74,30 +61,6 @@ jobs:
               
               # Write contributor and badge info to leaderboard
               echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
-            done
-
-          # Extract PR data (merged pull requests)
-          echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
-            while read contributor prs; do
-              # Initialize badge for PRs
-              badge="No Badge"
-              
-              # Assign badges based on PRs merged
-              if [ "$prs" -gt 5 ]; then
-                badge="PR Hero"
-              elif [ "$prs" -gt 2 ]; then
-                badge="Active PR Contributor"
-              fi
-              
-              # Update leaderboard with PR data
-              # We need to check if the contributor already exists from commits or issues
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 |/$prs | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | $prs | 0 | 0 | $badge |" >> leaderboard.md
-              fi
             done
 
           # Extract issues data
@@ -121,30 +84,6 @@ jobs:
                 sed -i "/| @$contributor |/s/0 | 0 | 0 |/$issues | 0 | $badge |/" leaderboard.md
               else
                 echo "| @$contributor | 0 | 0 | $issues | 0 | $badge |" >> leaderboard.md
-              fi
-            done
-            
-          # Extract reviews data (reviews submitted)
-          echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
-            while read contributor reviews; do
-              # Initialize badge for reviews
-              badge="No Badge"
-              
-              # Assign badges based on reviews submitted
-              if [ "$reviews" -gt 5 ]; then
-                badge="Review Master"
-              elif [ "$reviews" -gt 2 ]; then
-                badge="Active Reviewer"
-              fi
-              
-              # Update leaderboard with reviews data
-              # We need to check if the contributor already exists from commits or issues
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 |/$reviews | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | 0 | 0 | $reviews | $badge |" >> leaderboard.md
               fi
             done
 
