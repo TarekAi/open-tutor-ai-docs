@@ -17,30 +17,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get a list of contributors and their commits
-          echo "Fetching contributor stats..."
-          
-          # Set date range for the past week (change if necessary)
+          # Get the current date range for the past week
           since_date=$(date -d 'last Monday' --utc +%Y-%m-%dT%H:%M:%SZ)
           until_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
-          
+
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
           echo "| Contributor | Commits | PRs Created | Issues Created | Reviews | Badge |" >> leaderboard.md
           echo "|-------------|---------|-------------|----------------|---------|-------|" >> leaderboard.md
-          
+
           # Fetch commits for the past week
           contributors_commits=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
           
+          # Debug: Print out the commits response
+          echo "Commits Response: $contributors_commits"
+
           # Fetch pull requests created
           contributors_prs=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date")
+          
+          # Debug: Print out the PR response
+          echo "PRs Response: $contributors_prs"
 
           # Fetch issues created
           contributors_issues=$(curl -s \
@@ -48,13 +51,19 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
           
+          # Debug: Print out the issues response
+          echo "Issues Response: $contributors_issues"
+
           # Fetch pull request reviews
           contributors_reviews=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/reviews?since=$since_date&until=$until_date")
 
-          # Initialize data structure to store contributions (commits, PRs, issues, reviews)
+          # Debug: Print out the reviews response
+          echo "Reviews Response: $contributors_reviews"
+
+          # Initialize data structure to store contributions
           declare -A commits_data
           declare -A prs_data
           declare -A issues_data
@@ -87,6 +96,12 @@ jobs:
             while read contributor reviews; do
               reviews_data["$contributor"]=$reviews
             done
+
+          # Debug: Check if contributors were found
+          echo "Commits Data: ${!commits_data[@]}"
+          echo "PRs Data: ${!prs_data[@]}"
+          echo "Issues Data: ${!issues_data[@]}"
+          echo "Reviews Data: ${!reviews_data[@]}"
 
           # Generate leaderboard with badges
           for contributor in "${!commits_data[@]}"; do
