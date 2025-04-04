@@ -1,15 +1,19 @@
 # Weekly Contributor Leaderboard
 
-Last updated: Fri Apr  4 19:53:23 UTC 2025
+Last updated: Fri Apr  4 19:55:44 UTC 2025
 Period: Past week
 
-| Contributor | Commits | Issues | Pull Requests | Discussions | Reviews | Badge |
-|-------------|---------|---------|---------------|-------------|---------|-------|
-| <img src="https://avatars.githubusercontent.com/u/44382088?v=4" width="30" style="border-radius: 50%"> [@TarekAi](https://github.com/TarekAi) | 15 | 0 | 0 | 0 | 0 | 🏆 Top Contributor |
+| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |
+|-------------|---------|---------|---------------|---------|-------|
+| @TarekAi | 43 | 3 | 2 | 0 | 🏆 Top Contributor |
 
 ## Badge Levels
 
 - 🏆 **Top Contributor**: More than 10 commits
-- 💪 **Consistent Contributor**: More than 5 commits
+- ⭐ **Rising Star**: More than 5 commits
+- 💪 **Consistent Contributor**: More than 2 commits
 - 🎯 **Issue Master**: More than 5 issues
+- 📝 **Active Issue Creator**: More than 2 issues
+- 🚀 **PR Master**: More than 5 PRs
+- 📦 **Active PR Creator**: More than 2 PRs
 - 🌱 **New Contributor**: First contribution
