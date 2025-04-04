@@ -54,98 +54,88 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/reviews?since=$since_date&until=$until_date")
 
+          # Initialize contributor data
+          declare -A commits
+          declare -A issues
+          declare -A prs
+          declare -A reviews
+
           # Extract commit data
           echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
-            while read contributor commits; do
-              # Initialize badge
-              badge="No Badge"
-              
-              # Assign badges based on commit contributions
-              if [ "$commits" -gt 10 ]; then
-                badge="Top Contributor"
-              elif [ "$commits" -gt 5 ]; then
-                badge="Rising Star"
-              elif [ "$commits" -gt 2 ]; then
-                badge="Consistent Contributor"
-              fi
-              
-              # Write contributor and badge info to leaderboard
-              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
+            while read contributor commit_count; do
+              commits[$contributor]=$commit_count
             done
 
           # Extract issues data
           echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
-            while read contributor issues; do
-              # Initialize badge for issues
-              badge="No Badge"
-              
-              # Assign badges based on issues created
-              if [ "$issues" -gt 5 ]; then
-                badge="Issue Master"
-              elif [ "$issues" -gt 2 ]; then
-                badge="Active Issue Creator"
-              fi
-              
-              # Update leaderboard with issues data
-              # We need to check if the contributor already exists from commits
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 | 0 |/$issues | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | 0 | $issues | 0 | $badge |" >> leaderboard.md
-              fi
+            while read contributor issue_count; do
+              issues[$contributor]=$issue_count
             done
 
-          # Extract PR data (merged pull requests)
+          # Extract pull request data
           echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
-            while read contributor prs; do
-              # Initialize badge for PRs
-              badge="No Badge"
-              
-              # Assign badges based on PRs merged
-              if [ "$prs" -gt 5 ]; then
-                badge="PR Hero"
-              elif [ "$prs" -gt 2 ]; then
-                badge="Active PR Contributor"
-              fi
-              
-              # Update leaderboard with PR data
-              # We need to check if the contributor already exists from commits or issues
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 |/$prs | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | $prs | 0 | 0 | $badge |" >> leaderboard.md
-              fi
+            while read contributor pr_count; do
+              prs[$contributor]=$pr_count
             done
 
-          # Extract reviews data (reviews submitted)
+          # Extract review data
           echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
-            while read contributor reviews; do
-              # Initialize badge for reviews
-              badge="No Badge"
-              
-              # Assign badges based on reviews submitted
-              if [ "$reviews" -gt 5 ]; then
-                badge="Review Master"
-              elif [ "$reviews" -gt 2 ]; then
-                badge="Active Reviewer"
-              fi
-              
-              # Update leaderboard with reviews data
-              # We need to check if the contributor already exists from commits or issues
-              if grep -q "| @$contributor |" leaderboard.md; then
-                sed -i "/| @$contributor |/s/0 | 0 |/$reviews | 0 | $badge |/" leaderboard.md
-              else
-                echo "| @$contributor | 0 | 0 | 0 | $reviews | $badge |" >> leaderboard.md
-              fi
+            while read contributor review_count; do
+              reviews[$contributor]=$review_count
             done
+
+          # Now loop through all contributors to compile the leaderboard
+          for contributor in "${!commits[@]}"; do
+            # Initialize badge
+            badge="No Badge"
+            
+            # Get individual counts
+            commit_count=${commits[$contributor]}
+            issue_count=${issues[$contributor]:-0}
+            pr_count=${prs[$contributor]:-0}
+            review_count=${reviews[$contributor]:-0}
+
+            # Assign badges based on commits
+            if [ "$commit_count" -gt 10 ]; then
+              badge="Top Contributor"
+            elif [ "$commit_count" -gt 5 ]; then
+              badge="Rising Star"
+            elif [ "$commit_count" -gt 2 ]; then
+              badge="Consistent Contributor"
+            fi
+
+            # Assign badges based on issues
+            if [ "$issue_count" -gt 5 ]; then
+              badge="Issue Master"
+            elif [ "$issue_count" -gt 2 ]; then
+              badge="Active Issue Creator"
+            fi
+
+            # Assign badges based on pull requests
+            if [ "$pr_count" -gt 5 ]; then
+              badge="PR Hero"
+            elif [ "$pr_count" -gt 2 ]; then
+              badge="Active PR Contributor"
+            fi
+
+            # Assign badges based on reviews
+            if [ "$review_count" -gt 5 ]; then
+              badge="Review Master"
+            elif [ "$review_count" -gt 2 ]; then
+              badge="Active Reviewer"
+            fi
+
+            # Write contributor data to leaderboard
+            echo "| @$contributor | $commit_count | $pr_count | $issue_count | $review_count | $badge |" >> leaderboard.md
+          done
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
