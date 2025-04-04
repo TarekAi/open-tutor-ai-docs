@@ -27,35 +27,93 @@ jobs:
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
           echo "" >> leaderboard.md
-          echo "| Contributor | Commits | Pull Requests | Issues | Reviews | Badge |" >> leaderboard.md
-          echo "|-------------|---------|----------------|--------|---------|-------|" >> leaderboard.md
+          echo "| Contributor | Commits | PRs Created | Issues Created | Reviews | Badge |" >> leaderboard.md
+          echo "|-------------|---------|-------------|----------------|---------|-------|" >> leaderboard.md
           
           # Fetch commits for the past week
-          contributors=$(curl -s \
+          contributors_commits=$(curl -s \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
+          
+          # Fetch pull requests created
+          contributors_prs=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date")
 
-          # Extract commit data
-          echo "$contributors" | jq -r '.[] | "\(.author.login) | 1"' | \
+          # Fetch issues created
+          contributors_issues=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
+          
+          # Fetch pull request reviews
+          contributors_reviews=$(curl -s \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/reviews?since=$since_date&until=$until_date")
+
+          # Initialize data structure to store contributions (commits, PRs, issues, reviews)
+          declare -A commits_data
+          declare -A prs_data
+          declare -A issues_data
+          declare -A reviews_data
+
+          # Parse commits data
+          echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            sort -k2 -nr | \
             while read contributor commits; do
-              # Assign badges based on contribution
-              badge="No Badge"
-              
-              # Assign badges based on rules (you can adjust these conditions)
-              if [ "$commits" -gt 10 ]; then
-                badge="Top Contributor"
-              elif [ "$commits" -gt 5 ]; then
-                badge="Rising Star"
-              elif [ "$commits" -gt 2 ]; then
-                badge="Consistent Contributor"
-              fi
-              
-              # Write contributor and badge info to leaderboard
-              echo "| @$contributor | $commits | 0 | 0 | 0 | $badge |" >> leaderboard.md
+              commits_data["$contributor"]=$commits
             done
+
+          # Parse PRs created data
+          echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            while read contributor prs; do
+              prs_data["$contributor"]=$prs
+            done
+
+          # Parse issues created data
+          echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            while read contributor issues; do
+              issues_data["$contributor"]=$issues
+            done
+
+          # Parse reviews data
+          echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
+            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+            while read contributor reviews; do
+              reviews_data["$contributor"]=$reviews
+            done
+
+          # Generate leaderboard with badges
+          for contributor in "${!commits_data[@]}"; do
+            commits=${commits_data["$contributor"]}
+            prs=${prs_data["$contributor"]}
+            issues=${issues_data["$contributor"]}
+            reviews=${reviews_data["$contributor"]}
+            
+            # Assign badges based on contributions
+            badge="No Badge"
+            
+            # Badge conditions (can be adjusted)
+            if [ "$commits" -gt 10 ]; then
+              badge="Top Contributor"
+            elif [ "$prs" -gt 5 ]; then
+              badge="Top PR Creator"
+            elif [ "$reviews" -gt 5 ]; then
+              badge="Top Reviewer"
+            elif [ "$issues" -gt 5 ]; then
+              badge="Top Issue Creator"
+            elif [ "$commits" -gt 5 ] && [ "$prs" -gt 3 ]; then
+              badge="Rising Star"
+            fi
+            
+            # Write contributor and badge info to leaderboard
+            echo "| @$contributor | $commits | $prs | $issues | $reviews | $badge |" >> leaderboard.md
+          done
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
