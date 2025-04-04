@@ -98,16 +98,16 @@ jobs:
             # Assign badges based on contributions
             badge="No Badge"
             
-            # Badge conditions (can be adjusted)
-            if [ "$commits" -gt 5 ]; then
+            # Badge conditions (updated for smaller contributions)
+            if [ "$commits" -gt 4 ]; then
               badge="Top Contributor"
-            elif [ "$prs" -gt 5 ]; then
+            elif [ "$prs" -gt 1 ]; then
               badge="Top PR Creator"
-            elif [ "$reviews" -gt 5 ]; then
+            elif [ "$reviews" -gt 1 ]; then
               badge="Top Reviewer"
-            elif [ "$issues" -gt 5 ]; then
+            elif [ "$issues" -gt 1 ]; then
               badge="Top Issue Creator"
-            elif [ "$commits" -gt 5 ] && [ "$prs" -gt 3 ]; then
+            elif [ "$commits" -gt 2 ] && [ "$prs" -gt 1 ]; then
               badge="Rising Star"
             fi
             
