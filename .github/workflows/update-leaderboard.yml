@@ -99,7 +99,7 @@ jobs:
             badge="No Badge"
             
             # Badge conditions (can be adjusted)
-            if [ "$commits" -gt 10 ]; then
+            if [ "$commits" -gt 5 ]; then
               badge="Top Contributor"
             elif [ "$prs" -gt 5 ]; then
               badge="Top PR Creator"
