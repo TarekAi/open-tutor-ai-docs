@@ -2,5 +2,5 @@
 
 | Contributor | Commits | Pull Requests | Issues | Reviews | Badge |
 |-------------|---------|----------------|--------|---------|-------|
-| @TarekAi | 19 | 2 | 0 | No Badge | Top Contributor |
-| @actions-user | 11 | 0 | 0 | 0 | Top Contributor |
+| @TarekAi | 18 | 1 | 0 | No Badge | 0 | Top Contributor |
+| @actions-user | 12 | 0 | 0 | 0 | Top Contributor |
