@@ -1,6 +1,6 @@
 # Weekly Contributor Leaderboard
 
-| Contributor | Commits | Pull Requests | Issues | Reviews | Badge |
+| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |
 |-------------|---------|----------------|--------|---------|-------|
-| @TarekAi | 18 | 2 | 0 | No Badge | Top Contributor |
-| @actions-user | 12 | 0 | 0 | 0 | Top Contributor |
+| @TarekAi | 17 | 2 | 0 | No Badge | Top Contributor |
+| @actions-user | 13 | 0 | 0 | 0 | Top Contributor |
