@@ -69,33 +69,53 @@ jobs:
           declare -A issues_data
           declare -A reviews_data
 
-          # Parse commits data
-          echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            while read contributor commits; do
-              commits_data["$contributor"]=$commits
-            done
+          # Check if commits data is not empty
+          if [ "$(echo "$contributors_commits" | jq length)" -gt 0 ]; then
+            # Parse commits data
+            echo "$contributors_commits" | jq -r '.[] | "\(.author.login) | 1"' | \
+              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+              while read contributor commits; do
+                commits_data["$contributor"]=$commits
+              done
+          else
+            echo "No commits found for this period."
+          fi
 
-          # Parse PRs created data
-          echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            while read contributor prs; do
-              prs_data["$contributor"]=$prs
-            done
+          # Check if PRs data is not empty
+          if [ "$(echo "$contributors_prs" | jq length)" -gt 0 ]; then
+            # Parse PRs created data
+            echo "$contributors_prs" | jq -r '.[] | "\(.user.login) | 1"' | \
+              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+              while read contributor prs; do
+                prs_data["$contributor"]=$prs
+              done
+          else
+            echo "No PRs found for this period."
+          fi
 
-          # Parse issues created data
-          echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            while read contributor issues; do
-              issues_data["$contributor"]=$issues
-            done
+          # Check if issues data is not empty
+          if [ "$(echo "$contributors_issues" | jq length)" -gt 0 ]; then
+            # Parse issues created data
+            echo "$contributors_issues" | jq -r '.[] | "\(.user.login) | 1"' | \
+              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+              while read contributor issues; do
+                issues_data["$contributor"]=$issues
+              done
+          else
+            echo "No issues found for this period."
+          fi
 
-          # Parse reviews data
-          echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
-            awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
-            while read contributor reviews; do
-              reviews_data["$contributor"]=$reviews
-            done
+          # Check if reviews data is not empty
+          if [ "$(echo "$contributors_reviews" | jq length)" -gt 0 ]; then
+            # Parse reviews data
+            echo "$contributors_reviews" | jq -r '.[] | "\(.user.login) | 1"' | \
+              awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
+              while read contributor reviews; do
+                reviews_data["$contributor"]=$reviews
+              done
+          else
+            echo "No reviews found for this period."
+          fi
 
           # Debug: Check if contributors were found
           echo "Commits Data: ${!commits_data[@]}"
