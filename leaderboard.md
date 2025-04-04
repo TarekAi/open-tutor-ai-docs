@@ -1,10 +1,11 @@
 # Weekly Contributor Leaderboard
 
-Last updated: Fri Apr  4 19:10:42 UTC 2025
+Last updated: Fri Apr  4 19:12:59 UTC 2025
+Period: Last 30 days
 
 | Contributor | Commits | Issues | Pull Requests | Reviews | Badge |
 |-------------|---------|---------|---------------|---------|-------|
-| No contributors found for this period | - | - | - | - | - |
+| No activity found in the last 30 days | - | - | - | - | - |
 
 ## Badge Levels
 
