@@ -24,8 +24,12 @@ jobs:
           since_date=$(date -d 'last Monday' --utc +%Y-%m-%dT%H:%M:%SZ)
           until_date=$(date --utc +%Y-%m-%dT%H:%M:%SZ)
           
+          echo "Fetching data from $since_date to $until_date"
+          
           # Initialize leaderboard markdown file
           echo "# Weekly Contributor Leaderboard" > leaderboard.md
+          echo "" >> leaderboard.md
+          echo "Last updated: $(date --utc)" >> leaderboard.md
           echo "" >> leaderboard.md
           echo "| Contributor | Commits | Issues | Pull Requests | Reviews | Badge |" >> leaderboard.md
           echo "|-------------|---------|---------|---------------|---------|-------|" >> leaderboard.md
@@ -34,43 +38,64 @@ jobs:
           declare -A contributor_data
 
           # Fetch commits for the past week
-          contributors_commits=$(curl -s \
+          echo "Fetching commits..."
+          contributors_commits=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date")
+            "https://api.github.com/repos/${{ github.repository }}/commits?since=$since_date&until=$until_date&per_page=100")
 
-          # Process commits
-          echo "$contributors_commits" | jq -r '.[] | .author.login' | sort | uniq -c | while read count login; do
-            if [ ! -z "$login" ]; then
-              contributor_data["$login,commits"]=$count
-            fi
-          done
+          # Check if the response is valid JSON and not empty
+          if jq -e . >/dev/null 2>&1 <<<"$contributors_commits"; then
+            echo "Processing commits..."
+            echo "$contributors_commits" | jq -r '.[] | select(.author != null) | .author.login' | sort | uniq -c | while read count login; do
+              if [ ! -z "$login" ]; then
+                contributor_data["$login,commits"]=$count
+                echo "Found $count commits for $login"
+              fi
+            done
+          else
+            echo "No valid commits data received"
+          fi
 
           # Fetch issues created for the past week
-          contributors_issues=$(curl -s \
+          echo "Fetching issues..."
+          contributors_issues=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date")
+            "https://api.github.com/repos/${{ github.repository }}/issues?state=all&since=$since_date&until=$until_date&per_page=100")
 
-          # Process issues (excluding PRs)
-          echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null) | .user.login' | sort | uniq -c | while read count login; do
-            if [ ! -z "$login" ]; then
-              contributor_data["$login,issues"]=$count
-            fi
-          done
+          # Check if the response is valid JSON and not empty
+          if jq -e . >/dev/null 2>&1 <<<"$contributors_issues"; then
+            echo "Processing issues..."
+            echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null and .user != null) | .user.login' | sort | uniq -c | while read count login; do
+              if [ ! -z "$login" ]; then
+                contributor_data["$login,issues"]=$count
+                echo "Found $count issues for $login"
+              fi
+            done
+          else
+            echo "No valid issues data received"
+          fi
 
           # Fetch PRs created for the past week
-          contributors_prs=$(curl -s \
+          echo "Fetching pull requests..."
+          contributors_prs=$(curl -s -L \
             -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date")
+            "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date&until=$until_date&per_page=100")
 
-          # Process PRs
-          echo "$contributors_prs" | jq -r '.[] | .user.login' | sort | uniq -c | while read count login; do
-            if [ ! -z "$login" ]; then
-              contributor_data["$login,prs"]=$count
-            fi
-          done
+          # Check if the response is valid JSON and not empty
+          if jq -e . >/dev/null 2>&1 <<<"$contributors_prs"; then
+            echo "Processing pull requests..."
+            echo "$contributors_prs" | jq -r '.[] | select(.user != null) | .user.login' | sort | uniq -c | while read count login; do
+              if [ ! -z "$login" ]; then
+                contributor_data["$login,prs"]=$count
+                echo "Found $count PRs for $login"
+              fi
+            done
+          else
+            echo "No valid pull requests data received"
+          fi
 
           # Function to determine badge
           get_badge() {
@@ -79,28 +104,35 @@ jobs:
             local prs=$3
             
             if [ "$commits" -gt 10 ]; then
-              echo "Top Contributor"
+              echo "🏆 Top Contributor"
             elif [ "$commits" -gt 5 ]; then
-              echo "Rising Star"
+              echo "⭐ Rising Star"
             elif [ "$commits" -gt 2 ]; then
-              echo "Consistent Contributor"
+              echo "💪 Consistent Contributor"
             elif [ "$issues" -gt 5 ]; then
-              echo "Issue Master"
+              echo "🎯 Issue Master"
             elif [ "$issues" -gt 2 ]; then
-              echo "Active Issue Creator"
+              echo "📝 Active Issue Creator"
             elif [ "$prs" -gt 5 ]; then
-              echo "PR Master"
+              echo "🚀 PR Master"
             elif [ "$prs" -gt 2 ]; then
-              echo "Active PR Contributor"
+              echo "🔄 Active PR Contributor"
             else
-              echo "No Badge"
+              echo "🌱 New Contributor"
             fi
           }
 
-          # Combine all unique contributors and write to leaderboard
+          # Process all contributors
+          echo "Processing contributors..."
+          processed_contributors=()
           for key in "${!contributor_data[@]}"; do
             login=${key%,*}
             type=${key#*,}
+            
+            # Skip if we've already processed this contributor
+            if [[ " ${processed_contributors[@]} " =~ " ${login} " ]]; then
+              continue
+            fi
             
             commits=${contributor_data["$login,commits"]:-0}
             issues=${contributor_data["$login,issues"]:-0}
@@ -109,15 +141,35 @@ jobs:
             
             badge=$(get_badge "$commits" "$issues" "$prs")
             
-            # Only add each contributor once
-            if ! grep -q "| @$login |" leaderboard.md; then
-              echo "| @$login | $commits | $issues | $prs | $reviews | $badge |" >> leaderboard.md
-            fi
+            echo "Adding contributor $login with $commits commits, $issues issues, $prs PRs"
+            echo "| @$login | $commits | $issues | $prs | $reviews | $badge |" >> leaderboard.md
+            
+            processed_contributors+=("$login")
           done
 
+          # If no contributors were found, add a note
+          if [ ${#processed_contributors[@]} -eq 0 ]; then
+            echo "No contributors found for this period"
+            echo "| No contributors found for this period | - | - | - | - | - |" >> leaderboard.md
+          fi
+
           # Sort the leaderboard by total contributions (excluding header)
-          (head -n 4 leaderboard.md && tail -n +5 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
+          echo "Sorting leaderboard..."
+          (head -n 6 leaderboard.md && tail -n +7 leaderboard.md | sort -t'|' -k2 -nr) > leaderboard.tmp
           mv leaderboard.tmp leaderboard.md
+
+          # Add footer
+          echo "" >> leaderboard.md
+          echo "## Badge Levels" >> leaderboard.md
+          echo "" >> leaderboard.md
+          echo "- 🏆 **Top Contributor**: More than 10 commits" >> leaderboard.md
+          echo "- ⭐ **Rising Star**: More than 5 commits" >> leaderboard.md
+          echo "- 💪 **Consistent Contributor**: More than 2 commits" >> leaderboard.md
+          echo "- 🎯 **Issue Master**: More than 5 issues" >> leaderboard.md
+          echo "- 📝 **Active Issue Creator**: More than 2 issues" >> leaderboard.md
+          echo "- 🚀 **PR Master**: More than 5 PRs" >> leaderboard.md
+          echo "- 🔄 **Active PR Contributor**: More than 2 PRs" >> leaderboard.md
+          echo "- 🌱 **New Contributor**: First contribution" >> leaderboard.md
 
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
