@@ -68,7 +68,7 @@ jobs:
           contributors_prs=$(fetch_all_pages "https://api.github.com/repos/${{ github.repository }}/pulls?state=all&since=$since_date")
 
           # Process commits
-          echo "$contributors_commits" | jq -r '.[] | select(.author != null) | "\(.author.login) | 1"' | \
+          echo "$contributors_commits" | jq -r '.[] | select(.author != null and .author.login != "github-actions[bot]" and .author.login != "actions-user") | "\(.author.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
             while read contributor commits; do
@@ -87,7 +87,7 @@ jobs:
             done
 
           # Process issues
-          echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null and .user != null) | "\(.user.login) | 1"' | \
+          echo "$contributors_issues" | jq -r '.[] | select(.pull_request == null and .user != null and .user.login != "github-actions[bot]" and .user.login != "actions-user") | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
             while read contributor issues; do
@@ -112,7 +112,7 @@ jobs:
             done
 
           # Process pull requests
-          echo "$contributors_prs" | jq -r '.[] | select(.user != null) | "\(.user.login) | 1"' | \
+          echo "$contributors_prs" | jq -r '.[] | select(.user != null and .user.login != "github-actions[bot]" and .user.login != "actions-user") | "\(.user.login) | 1"' | \
             awk -F '|' '{ a[$1]+=$2 } END { for (i in a) print i, a[i] }' | \
             sort -k2 -nr | \
             while read contributor prs; do
