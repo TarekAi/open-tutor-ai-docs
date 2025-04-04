@@ -120,4 +120,4 @@ jobs:
           # Commit and push changes if there are updates
           git config --global user.name "GitHub Actions"
           git config --global user.email "action@github.com"
-          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update with badges" && git push)
+          git diff --exit-code leaderboard.md || (git add leaderboard.md && git commit -m "🔁 Weekly leaderboard update" && git push)
