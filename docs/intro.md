@@ -4,13 +4,13 @@ sidebar_position: 1
 
 # Open TutorAI 👋
 
-![GitHub stars](https://img.shields.io/github/stars/pr-elhajji/open-tutor-ai-CE?style=social)
-![GitHub forks](https://img.shields.io/github/forks/pr-elhajji/open-tutor-ai-CE?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/pr-elhajji/open-tutor-ai-CE?style=social)
-![GitHub repo size](https://img.shields.io/github/repo-size/pr-elhajji/open-tutor-ai-CE)
-![GitHub language count](https://img.shields.io/github/languages/count/pr-elhajji/open-tutor-ai-CE)
-![GitHub top language](https://img.shields.io/github/languages/top/pr-elhajji/open-tutor-ai-CE)
-![GitHub last commit](https://img.shields.io/github/last-commit/pr-elhajji/open-tutor-ai-CE)
+![GitHub stars](https://img.shields.io/github/stars/R2D-dev/open-tutor-ai-CE?style=social)
+![GitHub forks](https://img.shields.io/github/forks/R2D-dev/open-tutor-ai-CE?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/R2D-dev/open-tutor-ai-CE?style=social)
+![GitHub repo size](https://img.shields.io/github/repo-size/R2D-dev/open-tutor-ai-CE)
+![GitHub language count](https://img.shields.io/github/languages/count/R2D-dev/open-tutor-ai-CE)
+![GitHub top language](https://img.shields.io/github/languages/top/R2D-dev/open-tutor-ai-CE)
+![GitHub last commit](https://img.shields.io/github/last-commit/R2D-dev/open-tutor-ai-CE)
 [![Discord](https://img.shields.io/badge/Discord-Open_TutorAI-blue?logo=discord&logoColor=white)](https://discord.gg/z5fMfrBzEF)
 
 
